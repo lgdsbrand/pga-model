@@ -22,30 +22,31 @@ with col2:
 st.markdown("---")
 
 # -------------------------------
-# Leaderboard (Scrollable)
+# Leaderboard (Scrollable with 10 visible rows)
 # -------------------------------
 st.subheader("🏆 Live Leaderboard")
 
 leaderboard_data = pd.DataFrame({
-    "Pos": [1, 2, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "Pos": [1, 2, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     "Player": [
         "Jon Rahm", "Scottie Scheffler", "Rory McIlroy", "Xander Schauffele", "Viktor Hovland",
         "Jordan Spieth", "Collin Morikawa", "Brooks Koepka", "Tony Finau", "Max Homa",
-        "Patrick Cantlay", "Justin Thomas"
+        "Patrick Cantlay", "Justin Thomas", "Shane Lowry", "Matt Fitzpatrick", "Cameron Young"
     ],
-    "Score": [-12, -10, -10, -8, -7, -7, -6, -5, -5, -5, -4, -4],
-    "Round": [4,4,4,4,4,4,4,4,4,4,4,4],
-    "Thru": ["F","F","F","F","F","F","F","F","F","F","F","F"]
+    "Score": [-12, -10, -10, -8, -7, -7, -6, -5, -5, -5, -4, -4, -4, -3, -3],
+    "Round": [4]*15,
+    "Thru": ["F"]*15
 })
 
-# Show only top 10 at a time with scrolling
+# Create a scrollable table showing only 10 rows at a time
 st.dataframe(
-    leaderboard_data.head(10),
+    leaderboard_data,
     use_container_width=True,
-    hide_index=True
+    hide_index=True,
+    height=350  # Adjust this to control the visible rows
 )
 
-st.caption("Scroll to see more players →")
+st.caption("Scroll within the table to see all players →")
 
 st.markdown("---")
 
