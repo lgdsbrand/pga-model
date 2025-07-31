@@ -2,7 +2,6 @@ import pandas as pd
 
 # ---- SAMPLE LEADERBOARD ----
 def load_leaderboard(tournament):
-    # Sample demo data (replace with real model output later)
     data = {
         "Player": ["A. Rai", "M. Fitzpatrick", "K. Bradley", "S. Kim", "R. MacIntyre"],
         "Make Cut %": [76.7, 72.7, 72.5, 72.2, 71.5],
@@ -10,19 +9,31 @@ def load_leaderboard(tournament):
         "Top 10 %": [27.1, 23.5, 22.2, 21.6, 20.2],
         "Top 5 %": [16.5, 14.2, 13.0, 12.4, 11.4],
         "Win %": [4.6, 3.8, 3.4, 3.0, 2.7],
-        "Edge %": [8, 5, 4, 3, 2]  # Simulated model edges
+        "Edge %": [8, 5, 4, 3, 2]
     }
     return pd.DataFrame(data)
 
-# ---- HIGHLIGHT FOR EDGE % ----
+# ---- HIGHLIGHT FOR EDGE % AND BEST STAT ----
 def highlight_edges(row):
-    color = ""
-    if row["Edge %"] >= 7:
-        color = "background-color: lightgreen; font-weight: bold"
-    elif row["Edge %"] <= 3:
-        color = "background-color: pink"
-    return [color if col == "Edge %"
-            else "" for col in row.index]
+    styles = []
+    max_stat_cols = ["Make Cut %","Top 20 %","Top 10 %","Top 5 %","Win %"]
+    for col in row.index:
+        if col == "Edge %":
+            if row[col] >= 7:
+                styles.append("background-color: lightgreen; font-weight: bold")
+            elif row[col] <= 3:
+                styles.append("background-color: pink")
+            else:
+                styles.append("")
+        elif col in max_stat_cols:
+            # Highlight better stats in green (for leaderboards, higher is better)
+            if row[col] == max([row[c] for c in max_stat_cols]):
+                styles.append("color: green; font-weight: bold")
+            else:
+                styles.append("")
+        else:
+            styles.append("")
+    return styles
 
 # ---- SAMPLE H2H MATCHUPS ----
 def load_matchups(tournament):
@@ -40,8 +51,26 @@ def load_matchups(tournament):
 
 # ---- HIGHLIGHT MATCHUPS ----
 def highlight_matchup(row):
-    color = ""
-    if "→" in row["Model Lean"]:
-        color = "background-color: lightgreen; font-weight: bold"
-    return [color if col == "Model Lean"
-            else "" for col in row.index]
+    styles = []
+    for col in row.index:
+        if col == "Model Lean":
+            styles.append("background-color: lightgreen; font-weight: bold")
+        elif "/" in str(row[col]) and any(ch.isdigit() for ch in str(row[col])):
+            # Pick lower scoring avg as green, higher SG as green
+            values = row[col].split("/")
+            try:
+                left_val = float(values[0].replace("+","").strip())
+                right_val = float(values[1].replace("+","").strip())
+                if "SG" in col:
+                    # Higher SG is better
+                    styles.append("color: green; font-weight: bold" if left_val>right_val else "")
+                elif "Scoring" in col:
+                    # Lower score is better
+                    styles.append("color: green; font-weight: bold" if left_val<right_val else "")
+                else:
+                    styles.append("")
+            except:
+                styles.append("")
+        else:
+            styles.append("")
+    return styles
