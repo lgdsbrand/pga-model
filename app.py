@@ -96,72 +96,72 @@ if view_option == "Pre-Tourney Best Bets":
 elif view_option == "H2H / 3-Ball":
     mode = st.radio("Mode", ["H2H", "3-Ball"], horizontal=True)
 
+    # Example data for demonstration
     if mode == "H2H":
-        matchup = st.selectbox("Select H2H Matchup", ["Scheffler vs Rahm", "Rory vs Spieth"])
-        if matchup == "Scheffler vs Rahm":
-            p1, p2 = "Scottie Scheffler", "Jon Rahm"
-            stats = [
-                ("SG: Tee to Green", 1.85, 1.55),
-                ("SG: Putting", 0.12, 0.23),
-                ("Scoring Avg", 68.3, 68.9)
-            ]
-            best_bet = "Scheffler -120"
-            advantage = "Scheffler"
-        else:
-            p1, p2 = "Rory McIlroy", "Jordan Spieth"
-            stats = [
-                ("SG: Tee to Green", 1.70, 1.05),
-                ("SG: Putting", 0.18, 0.05),
-                ("Scoring Avg", 68.8, 69.5)
-            ]
-            best_bet = "Rory -115"
-            advantage = "Rory McIlroy"
-
-    else:  # 3-Ball sample
-        matchup = st.selectbox("Select 3-Ball Matchup", ["Homa vs Finau vs Morikawa"])
-        p1, p2, p3 = "Max Homa", "Tony Finau", "Collin Morikawa"
-        stats = [
-            ("SG: Tee to Green", 1.2, 1.5, 1.4),
-            ("SG: Putting", 0.3, 0.2, 0.4),
-            ("Scoring Avg", 69.1, 68.8, 69.0)
+        matchups = [
+            {
+                "players": ["Scheffler", "Rahm"],
+                "stats": [
+                    ("SG: Tee to Green", 1.85, 1.55),
+                    ("SG: Putting", 0.12, 0.23),
+                    ("Scoring Avg", 68.3, 68.9)
+                ],
+                "best_bet": "Scheffler -120",
+                "advantage": "Scheffler"
+            },
+            {
+                "players": ["Rory McIlroy", "Spieth"],
+                "stats": [
+                    ("SG: Tee to Green", 1.70, 1.05),
+                    ("SG: Putting", 0.18, 0.05),
+                    ("Scoring Avg", 68.8, 69.5)
+                ],
+                "best_bet": "Rory -115",
+                "advantage": "Rory McIlroy"
+            }
         ]
-        best_bet = "Finau +200"
-        advantage = "Tony Finau"
+    else:  # 3-Ball
+        matchups = [
+            {
+                "players": ["Homa", "Finau", "Morikawa"],
+                "stats": [
+                    ("SG: Tee to Green", 1.2, 1.5, 1.4),
+                    ("SG: Putting", 0.3, 0.2, 0.4),
+                    ("Scoring Avg", 69.1, 68.8, 69.0)
+                ],
+                "best_bet": "Finau +200",
+                "advantage": "Finau"
+            }
+        ]
 
-    # Render Card
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+    # Render each matchup as a card
+    for matchup in matchups:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
 
-    # Header
-    if mode == "H2H":
-        st.markdown(f"### {p1} vs {p2}")
-    else:
-        st.markdown(f"### {p1} vs {p2} vs {p3}")
+        # Header
+        st.markdown("### " + " vs ".join(matchup["players"]))
 
-    # Stats rows with ✅ for winner
-    for stat in stats:
-        st.markdown('<div class="stat-row">', unsafe_allow_html=True)
-        if mode == "H2H":
-            label, val1, val2 = stat
-            if "Scoring" in label:  # lower is better
-                winner1 = val1 < val2
-            else:  # higher is better
-                winner1 = val1 > val2
-            check1 = "✅" if winner1 else ""
-            check2 = "✅" if not winner1 else ""
-            st.markdown(f"{label}: {val1} {check1} | {val2} {check2}")
-        else:
-            label, val1, val2, val3 = stat
+        # Stats rows with ✅ winner check
+        for stat in matchup["stats"]:
+            st.markdown('<div class="stat-row">', unsafe_allow_html=True)
+            label = stat[0]
+            values = stat[1:]
+            
+            # Determine winner logic (lower better for Scoring, higher better otherwise)
             if "Scoring" in label:
-                best = min(val1, val2, val3)
-                checks = ["✅" if val==best else "" for val in (val1, val2, val3)]
+                best_val = min(values)
             else:
-                best = max(val1, val2, val3)
-                checks = ["✅" if val==best else "" for val in (val1, val2, val3)]
-            st.markdown(f"{label}: {val1} {checks[0]} | {val2} {checks[1]} | {val3} {checks[2]}")
+                best_val = max(values)
+
+            display_vals = []
+            for val in values:
+                check = "✅" if val == best_val else ""
+                display_vals.append(f"{val} {check}")
+            st.markdown(f"{label}: {' | '.join(display_vals)}")
+
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # Footer
+        st.markdown(f"🏆 **Overall Advantage:** {matchup['advantage']}")
+        st.markdown(f"💰 **Best Value Bet:** {matchup['best_bet']}")
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # Footer
-    st.markdown(f"🏆 **Overall Advantage:** {advantage}")
-    st.markdown(f"💰 **Best Value Bet:** {best_bet}")
-
-    st.markdown('</div>', unsafe_allow_html=True)
